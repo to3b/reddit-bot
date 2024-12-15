@@ -1,16 +1,18 @@
+// No need to install node-fetch anymore, the native fetch API works in GitHub Actions
+const { default: fetch } = require('node-fetch');  // GitHub Actions environment will use built-in fetch
+
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const username = process.env.REDDIT_USERNAME;
 const password = process.env.REDDIT_PASSWORD;
-const userAgent = 'myBot/1.0'; // User-Agent string to identify your bot
+const userAgent = 'myBot/1.0';
+const keyword = 'test';  // The keyword to look for
+const responseMessage = 'This is an automated response from the bot!';  // The message to reply with
+const subreddit = 'CucumberBotTestSub';  // Replace with your desired subreddit
 
-const keyword = 'test'; // The keyword to watch for in comments
-const responseMessage = 'This is an automated response from the bot!'; // Message to reply with
-
-// Reddit OAuth API URL
 const authUrl = 'https://www.reddit.com/api/v1/access_token';
 
-// Fetch access token from Reddit API
+// Get Reddit access token
 async function getRedditToken() {
   const response = await fetch(authUrl, {
     method: 'POST',
@@ -24,15 +26,14 @@ async function getRedditToken() {
       password: password,
     }),
   });
-  
+
   const data = await response.json();
   return data.access_token;
 }
 
-// Monitor a subreddit for comments containing the keyword
+// Monitor subreddit for comments containing the keyword
 async function monitorSubreddit() {
   const token = await getRedditToken();
-  const subreddit = 'CucumberBotTestSub'; // Replace with the subreddit you want to monitor
   const commentsUrl = `https://oauth.reddit.com/r/${subreddit}/comments/.json`;
 
   setInterval(async () => {
@@ -42,7 +43,7 @@ async function monitorSubreddit() {
         'User-Agent': userAgent,
       },
     });
-    
+
     const data = await response.json();
     const comments = data[1]?.data?.children || [];
 
@@ -52,10 +53,10 @@ async function monitorSubreddit() {
         await replyToComment(comment.id, token);
       }
     }
-  }, 5000); // Check every 5 seconds
+  }, 5000);  // Check every 5 seconds
 }
 
-// Reply to a comment with the response message
+// Function to reply to the comment
 async function replyToComment(commentId, token) {
   const replyUrl = `https://oauth.reddit.com/api/comment`;
 
