@@ -9,25 +9,33 @@ const subreddit = 'CucumberBotTestSub';  // The subreddit to check for comments
 async function getRedditToken() {
   const url = 'https://www.reddit.com/api/v1/access_token';
 
+  // Correctly encode the clientId and clientSecret for Basic Authentication
+  const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  
   const authOptions = {
     method: 'POST',
     headers: {
-      'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+      'Authorization': authHeader,
       'User-Agent': userAgent
     },
     body: qs.stringify({
-      grant_type: 'client_credentials'  // Change to 'client_credentials'
+      grant_type: 'client_credentials'  // Make sure the grant type is correct
     })
   };
 
-  const response = await fetch(url, authOptions);
-  const data = await response.json();
-
-  if (data.access_token) {
-    console.log('Access Token received:', data.access_token);
-    return data.access_token;
-  } else {
-    console.error('Error getting access token:', data);
+  try {
+    const response = await fetch(url, authOptions);
+    const data = await response.json();
+    
+    if (data.access_token) {
+      console.log('Access Token received:', data.access_token);
+      return data.access_token;
+    } else {
+      console.error('Error getting access token:', data);
+      return null;
+    }
+  } catch (err) {
+    console.error('Error during token fetch:', err);
     return null;
   }
 }
