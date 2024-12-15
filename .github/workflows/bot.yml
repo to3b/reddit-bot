@@ -20,8 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # No need to install any dependencies like node-fetch
-        # We are using native fetch in GitHub Actions
+        npm install node-fetch@2  # Install node-fetch here
 
     - name: Run Reddit Bot
       run: node bot.js
