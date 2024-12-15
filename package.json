@@ -10,5 +10,6 @@
     "node-fetch": "^3.2.0"
   },
   "author": "Your Name",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }
