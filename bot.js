@@ -72,6 +72,7 @@ async function monitorSubreddit() {
       },
     });
 
+    // Log the raw response from Reddit
     const responseText = await response.text();
     console.log('Response from Reddit (Comments Request):', responseText);
 
