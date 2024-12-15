@@ -4,12 +4,11 @@ import qs from 'querystring';
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const userAgent = process.env.USER_AGENT;
-const subreddit = 'CucumberBotTestSub';  // The subreddit to check for comments
+const subreddit = 'CucumberBotTestSub';
 
 async function getRedditToken() {
   const url = 'https://www.reddit.com/api/v1/access_token';
 
-  // Correctly encode the clientId and clientSecret for Basic Authentication
   const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   
   const authOptions = {
@@ -19,7 +18,8 @@ async function getRedditToken() {
       'User-Agent': userAgent
     },
     body: qs.stringify({
-      grant_type: 'client_credentials'  // Make sure the grant type is correct
+      grant_type: 'client_credentials',
+      scope: 'read submit comment' // Requesting read, submit, and comment permissions
     })
   };
 
