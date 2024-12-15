@@ -3,30 +3,29 @@ name: Reddit Bot
 on:
   push:
     branches:
-      - main  # Trigger on push to `main`
-  workflow_dispatch:  # Allows manual trigger
+      - main
 
 jobs:
-  run-reddit-bot:
-    runs-on: ubuntu-latest  # Runs on Ubuntu
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          npm install  # Installs dependencies from `package.json`
+    - name: Install dependencies
+      run: npm install
 
-      # Step 4: Run the bot
-      - name: Run Reddit Bot
-        run: |
-          npm start  # Executes the bot.js script
+    - name: Run bot.js
+      env:
+        CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        USER_AGENT: ${{ secrets.USER_AGENT }}
+        REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+        REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+      run: node bot.js
