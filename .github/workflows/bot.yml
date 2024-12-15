@@ -3,30 +3,34 @@ name: Reddit Bot
 on:
   push:
     branches:
-      - main  # Trigger workflow on push to the 'main' branch
+      - main  # Trigger when changes are pushed to the `main` branch
+  workflow_dispatch:  # Allows you to manually trigger the workflow
 
 jobs:
-  run-bot:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+  run-reddit-bot:
+    runs-on: ubuntu-latest  # Runs the bot on an Ubuntu server
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2  # Checkout the code from the repo
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # You can specify any version of Node.js you want
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'  # Specify the Node.js version to use
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          npm install  # Installs the dependencies defined in package.json (like node-fetch)
 
-    - name: Install dependencies
-      run: |
-        npm init -y  # Initialize npm (this ensures package.json is created)
-        npm install node-fetch@2  # Install node-fetch (version 2 for compatibility)
+      # Step 4: Run the bot
+      - name: Run Reddit Bot
+        run: |
+          node bot.js  # Executes the bot.js script
 
-    - name: Run Reddit Bot
-      run: node bot.js  # Execute the bot.js script
-      env:
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
-        REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+      # Optional: Add a "sleep" step to wait for the bot to perform its task (if you need)
+      # - name: Wait for bot task
+      #   run: sleep 60  # Adds a 1 minute wait to give the bot some time to process comments
