@@ -1,12 +1,11 @@
-// Pure JavaScript to interact with Reddit without external libraries
+const fetch = require('node-fetch');  // Import node-fetch for making HTTP requests
 
-// Define your constants here
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const username = process.env.REDDIT_USERNAME;
 const password = process.env.REDDIT_PASSWORD;
 const userAgent = 'myBot/1.0';
-const keyword = 'test';  // The keyword to search for in comments
+const keyword = 'YOUR_KEYWORD';  // The keyword to search for in comments
 const responseMessage = 'This is an automated response from the bot!';  // The reply message
 const subreddit = 'CucumberBotTestSub';  // Subreddit you want to monitor
 
