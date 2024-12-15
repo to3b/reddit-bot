@@ -28,30 +28,41 @@ async function getRedditToken() {
   });
 
   const data = await response.json();
+  if (data.error) {
+    console.error('Error fetching Reddit token:', data.error);
+    return null;
+  }
+  console.log("Access Token received!");
   return data.access_token;
 }
 
 // Monitor subreddit for comments containing the keyword
 async function monitorSubreddit() {
   const token = await getRedditToken();
+  if (!token) return;
+
   const commentsUrl = `https://oauth.reddit.com/r/${subreddit}/comments/.json`;
 
   setInterval(async () => {
-    const response = await fetch(commentsUrl, {
-      headers: {
-        'Authorization': `bearer ${token}`,
-        'User-Agent': userAgent,
-      },
-    });
+    try {
+      const response = await fetch(commentsUrl, {
+        headers: {
+          'Authorization': `bearer ${token}`,
+          'User-Agent': userAgent,
+        },
+      });
 
-    const data = await response.json();
-    const comments = data[1]?.data?.children || [];
+      const data = await response.json();
+      const comments = data[1]?.data?.children || [];
 
-    for (const post of comments) {
-      const comment = post.data;
-      if (comment.body.includes(keyword)) {
-        await replyToComment(comment.id, token);
+      for (const post of comments) {
+        const comment = post.data;
+        if (comment.body.includes(keyword)) {
+          await replyToComment(comment.id, token);
+        }
       }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
     }
   }, 5000);  // Check every 5 seconds
 }
@@ -60,20 +71,28 @@ async function monitorSubreddit() {
 async function replyToComment(commentId, token) {
   const replyUrl = `https://oauth.reddit.com/api/comment`;
 
-  const response = await fetch(replyUrl, {
-    method: 'POST',
-    headers: {
-      'Authorization': `bearer ${token}`,
-      'User-Agent': userAgent,
-    },
-    body: new URLSearchParams({
-      'thing_id': `t1_${commentId}`,
-      'text': responseMessage,
-    }),
-  });
+  try {
+    const response = await fetch(replyUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `bearer ${token}`,
+        'User-Agent': userAgent,
+      },
+      body: new URLSearchParams({
+        'thing_id': `t1_${commentId}`,
+        'text': responseMessage,
+      }),
+    });
 
-  const data = await response.json();
-  console.log(`Replied to comment ${commentId}`);
+    const data = await response.json();
+    if (data.errors) {
+      console.error('Error posting reply:', data.errors);
+    } else {
+      console.log(`Replied to comment ${commentId}`);
+    }
+  } catch (error) {
+    console.error('Error replying to comment:', error);
+  }
 }
 
 // Start the bot
