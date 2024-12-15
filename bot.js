@@ -1,4 +1,3 @@
-// Import fetch using the ESM (ES Module) syntax
 import fetch from 'node-fetch';
 
 // Reddit API credentials from environment variables
@@ -11,6 +10,11 @@ const subreddit = 'CucumberBotTestSub';
 const keyword = 'test';
 const responseMessage = 'hello';
 
+// Log environment variables (make sure they are being read correctly)
+console.log('CLIENT_ID:', clientId);
+console.log('CLIENT_SECRET:', clientSecret);
+console.log('USER_AGENT:', userAgent);
+
 // Get the Reddit OAuth token
 async function getRedditToken() {
   const authUrl = 'https://www.reddit.com/api/v1/access_token';
@@ -20,56 +24,89 @@ async function getRedditToken() {
     password,
   });
 
-  const response = await fetch(authUrl, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-      'User-Agent': userAgent,
-    },
-    body: authData,
-  });
+  try {
+    const response = await fetch(authUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+        'User-Agent': userAgent,
+      },
+      body: authData,
+    });
 
-  const data = await response.json();
-  return data.access_token;
+    // Log the raw response from Reddit
+    const responseText = await response.text();
+    console.log('Response from Reddit (Token Request):', responseText);
+
+    if (!response.ok) {
+      console.log(`Error: ${response.status}`);
+      return null;
+    }
+
+    const data = JSON.parse(responseText);
+    console.log('Access Token received:', data.access_token);
+    return data.access_token;
+
+  } catch (error) {
+    console.log('Error fetching access token:', error);
+    return null;
+  }
 }
 
 // Monitor the subreddit and reply to comments
 async function monitorSubreddit() {
   const token = await getRedditToken();
 
-  // Fetch recent comments from the subreddit
+  if (!token) {
+    console.log('Failed to obtain access token.');
+    return;
+  }
+
   const url = `https://api.reddit.com/r/${subreddit}/comments?limit=10`;
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'User-Agent': userAgent,
-    },
-  });
 
-  const comments = await response.json();
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'User-Agent': userAgent,
+      },
+    });
 
-  // Check each comment for the keyword and reply
-  for (const comment of comments) {
-    if (comment.data.body.includes(keyword)) {
-      const replyUrl = `https://api.reddit.com/api/comment`;
+    const responseText = await response.text();
+    console.log('Response from Reddit (Comments Request):', responseText);
 
-      const replyData = new URLSearchParams({
-        text: responseMessage,
-        thing_id: `t1_${comment.data.id}`,
-      });
-
-      const replyResponse = await fetch(replyUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'User-Agent': userAgent,
-        },
-        body: replyData,
-      });
-
-      const replyResult = await replyResponse.json();
-      console.log('Replied:', replyResult);
+    if (!response.ok) {
+      console.log(`Error: ${response.status}`);
+      return;
     }
+
+    const comments = JSON.parse(responseText);
+    console.log('Fetched Comments:', comments);
+
+    // Process comments...
+    for (const comment of comments.data.children) {
+      if (comment.data.body.includes(keyword)) {
+        const replyUrl = `https://api.reddit.com/api/comment`;
+        const replyData = new URLSearchParams({
+          text: responseMessage,
+          thing_id: `t1_${comment.data.id}`,
+        });
+
+        const replyResponse = await fetch(replyUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'User-Agent': userAgent,
+          },
+          body: replyData,
+        });
+
+        const replyResult = await replyResponse.json();
+        console.log('Replied:', replyResult);
+      }
+    }
+  } catch (error) {
+    console.log('Error fetching subreddit data:', error);
   }
 }
 
