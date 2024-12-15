@@ -1,13 +1,13 @@
-const fetch = require('node-fetch');  // Import node-fetch for making HTTP requests
+const fetch = require('node-fetch');  // Import node-fetch for HTTP requests
 
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const username = process.env.REDDIT_USERNAME;
 const password = process.env.REDDIT_PASSWORD;
 const userAgent = 'myBot/1.0';
-const keyword = 'YOUR_KEYWORD';  // The keyword to search for in comments
+const keyword = 'YOUR_KEYWORD';  // Replace with your keyword
 const responseMessage = 'This is an automated response from the bot!';  // The reply message
-const subreddit = 'CucumberBotTestSub';  // Subreddit you want to monitor
+const subreddit = 'CucumberBotTestSub';  // Replace with your subreddit
 
 const authUrl = 'https://www.reddit.com/api/v1/access_token';
 
@@ -21,7 +21,7 @@ async function getRedditToken() {
   const response = await fetch(authUrl, {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${btoa(clientId + ':' + clientSecret)}`,
+      'Authorization': `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
       'User-Agent': userAgent,
     },
     body: formData,
