@@ -3,27 +3,27 @@ name: Reddit Bot
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the workflow on push to the 'main' branch
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # GitHub Actions runs on a Linux VM
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2  # Checkout the code
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'  # or your desired Node.js version
+        node-version: '16'  # You can use the latest LTS version
 
     - name: Install dependencies
       run: |
-        npm install node-fetch@2  # Install node-fetch here
+        npm install node-fetch@2  # Install node-fetch to make fetch available
 
     - name: Run Reddit Bot
-      run: node bot.js
+      run: node bot.js  # Run the bot.js script
       env:
         CLIENT_ID: ${{ secrets.CLIENT_ID }}
         CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
