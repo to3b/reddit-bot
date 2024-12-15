@@ -1,0 +1,14 @@
+{
+  "name": "reddit-bot",
+  "version": "1.0.0",
+  "description": "A bot that monitors a subreddit and replies to comments containing a specific keyword.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.2.0"
+  },
+  "author": "Your Name",
+  "license": "ISC"
+}
