@@ -1,7 +1,6 @@
-const fetch = require('node-fetch');
-const qs = require('querystring');
+import fetch from 'node-fetch';  // Use 'import' instead of 'require'
+import qs from 'querystring';  // Use 'import' for 'querystring'
 
-// Reddit OAuth credentials (from .env)
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const username = process.env.REDDIT_USERNAME;
