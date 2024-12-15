@@ -1,30 +1,31 @@
-// No need to install node-fetch anymore, the native fetch API works in GitHub Actions
-const { default: fetch } = require('node-fetch');  // GitHub Actions environment will use built-in fetch
+// Pure JavaScript to interact with Reddit without external libraries
 
+// Define your constants here
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const username = process.env.REDDIT_USERNAME;
 const password = process.env.REDDIT_PASSWORD;
 const userAgent = 'myBot/1.0';
-const keyword = 'test';  // The keyword to look for
-const responseMessage = 'This is an automated response from the bot!';  // The message to reply with
-const subreddit = 'CucumberBotTestSub';  // Replace with your desired subreddit
+const keyword = 'test';  // The keyword to search for in comments
+const responseMessage = 'This is an automated response from the bot!';  // The reply message
+const subreddit = 'CucumberBotTestSub';  // Subreddit you want to monitor
 
 const authUrl = 'https://www.reddit.com/api/v1/access_token';
 
 // Get Reddit access token
 async function getRedditToken() {
+  const formData = new URLSearchParams();
+  formData.append('grant_type', 'password');
+  formData.append('username', username);
+  formData.append('password', password);
+
   const response = await fetch(authUrl, {
     method: 'POST',
     headers: {
+      'Authorization': `Basic ${btoa(clientId + ':' + clientSecret)}`,
       'User-Agent': userAgent,
-      'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
     },
-    body: new URLSearchParams({
-      grant_type: 'password',
-      username: username,
-      password: password,
-    }),
+    body: formData,
   });
 
   const data = await response.json();
@@ -56,7 +57,7 @@ async function monitorSubreddit() {
   }, 5000);  // Check every 5 seconds
 }
 
-// Function to reply to the comment
+// Reply to a comment
 async function replyToComment(commentId, token) {
   const replyUrl = `https://oauth.reddit.com/api/comment`;
 
